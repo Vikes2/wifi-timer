@@ -9,6 +9,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="10dp"
         >
 
         <TextView
@@ -16,6 +17,7 @@
             android:layout_margin="4dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="20sp"
             android:text="Name"
             android:textStyle="bold"/>
 
@@ -26,6 +28,26 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="mac_address"/>
+
+        <Button
+            android:id="@+id/editBTN"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:gravity="center"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/deleteBTN"
+            android:background="@drawable/ic_edit"
+            android:layout_marginRight="16dp"/>
+
+        <Button
+            android:id="@+id/deleteBTN"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:gravity="center"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/ic_delete"
+            android:layout_marginRight="8dp"/>
 
     </RelativeLayout>
 
