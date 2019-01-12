@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">wifi-timer</string>
+    <string name="title_activity_favourite">FavouriteActivity</string>
+</resources>
