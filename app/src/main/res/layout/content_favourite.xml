@@ -9,12 +9,40 @@
     tools:showIn="@layout/activity_favourite"
     android:background="#c9c9c9">
 
+    <EditText
+        android:id="@+id/search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/search_btn"
+        android:hint="Szukaj"
+        />
+    <Button
+        android:id="@+id/search_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:text="Szukaj"
+        android:onClick="search"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="vertical"
+        android:layout_marginTop="10dp"
         android:padding="4dp"
+        android:layout_below="@id/search"
+        >
+
+    </android.support.v7.widget.RecyclerView>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/searchRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        android:layout_marginTop="10dp"
+        android:padding="4dp"
+        android:layout_below="@id/recyclerView"
         >
 
     </android.support.v7.widget.RecyclerView>

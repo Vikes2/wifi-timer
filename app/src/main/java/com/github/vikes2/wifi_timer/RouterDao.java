@@ -14,6 +14,9 @@ public interface RouterDao {
     @Query("SELECT * FROM router")
     LiveData<List<Router>> getAll();
 
+    @Query("SELECT * FROM router WHERE name LIKE :routerName")
+    LiveData<List<Router>> searchRouters(String routerName);
+
     @Insert
     void insert(Router router);
 
