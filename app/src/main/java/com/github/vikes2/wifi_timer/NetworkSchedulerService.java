@@ -10,10 +10,12 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -24,6 +26,8 @@ public class NetworkSchedulerService extends JobService implements
 
     private ConnectivityReceiver mConnectivityReceiver;
     private RouterDatabase db;
+    private ArrayList<String> routerList = new ArrayList<>();
+
 
     private long lastConnect = 0;
     private long lastDc = 0;
@@ -31,21 +35,41 @@ public class NetworkSchedulerService extends JobService implements
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "Service created");
+
         mConnectivityReceiver = new ConnectivityReceiver(this);
 
-//        db = Room.databaseBuilder(getApplicationContext(),
-//                RouterDatabase.class, "database-name").build();
-//
-//        db.routerDao().getAll().observe(this, new Observer<List<Router>>() {
-//            @Override
-//            public void onChanged(@Nullable List<Router> routers) {
-//                if (!routerList.isEmpty()) {
-//                    routerList.clear();
-//                }
-//                routerList.addAll(routers);
-//                mAdapter.notifyDataSetChanged();
-//            }
-//        });
+        db = Room.databaseBuilder(getApplicationContext(),
+                RouterDatabase.class, "database-name").build();
+
+        AsyncTask.execute(new Runnable() {
+            ArrayList<String> routerList2;
+            @Override
+            public void run() {
+                routerList = (ArrayList<String>)db.routerDao().getList();
+            }
+        });
+
+    }
+    @Override
+    public void onDestroy(){
+        if(routerList.size()>0){
+            long milis = Calendar.getInstance().getTimeInMillis();
+            AsyncTask.execute(new Runnable() {
+                Action action;
+                @Override
+                public void run() {
+                    db.actionDao().insert(action);
+                }
+                public Runnable init(Action _action){
+                    this.action = _action;
+                    return(this);
+                }
+            }.init( new Action(routerList.get(0), false, milis)  ));
+
+        }
+
+        super.onDestroy();
+
     }
 
 
@@ -64,6 +88,7 @@ public class NetworkSchedulerService extends JobService implements
     @Override
     public boolean onStartJob(JobParameters params) {
         Log.i(TAG, "onStartJob" + mConnectivityReceiver);
+
         registerReceiver(mConnectivityReceiver, new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
         return true;
     }
@@ -86,15 +111,34 @@ public class NetworkSchedulerService extends JobService implements
         int state = wm.getWifiState();
         long milis = Calendar.getInstance().getTimeInMillis();
 
+        if (routerList == null) {
+            return;
+        }
+
+        String _network_id =""+ activeNetwork.getNetworkId();
+
         if(isConnected == true){
-            if (milis - lastConnect < 3000){
-                //stabilizacja
-                return;
-            }else{
+            //if activeNetwork.getNetworkId() in database
+
+            if (milis - lastConnect > 3000 && routerList.contains(""+activeNetwork.getNetworkId())){
                 lastConnect = milis;
-                Log.d("pawelski", "Dodaje connect if " + activeNetwork.getNetworkId());
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
 
+                if(routerList.contains(_network_id)) {
+                    Log.d("pawelski", "Dodaje connect " + activeNetwork.getNetworkId());
+
+                    AsyncTask.execute(new Runnable() {
+                        Action action;
+                        @Override
+                        public void run() {
+                            db.actionDao().insert(action);
+                        }
+                        public Runnable init(Action _action){
+                            this.action = _action;
+                            return(this);
+                        }
+                    }.init( new Action(_network_id, isConnected, milis)  ));
+                }
             }
 
         }else{
@@ -104,21 +148,24 @@ public class NetworkSchedulerService extends JobService implements
             }else{
                 lastDc = milis;
                 Log.d("pawelski", "Dodaje dc ");
+
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-
+                if(routerList.size()>0) {
+                    AsyncTask.execute(new Runnable() {
+                        Action action;
+                        @Override
+                        public void run() {
+                            db.actionDao().insert(action);
+                        }
+                        public Runnable init(Action _action){
+                            this.action = _action;
+                            return(this);
+                        }
+                    }.init( new Action(routerList.get(0), isConnected, milis)  ));
+                }
             }
-
-
-
-
         }
-        //if activeNetwork.getNetworkId() in database
 
-
-
-
-
-        //Log.d("pawelski",message + activeNetwork.getNetworkId() + "         " + state);
     }
 
 }

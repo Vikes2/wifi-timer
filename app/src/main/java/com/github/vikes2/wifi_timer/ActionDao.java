@@ -11,20 +11,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Dao
-public interface RouterDao {
-    @Query("SELECT * FROM router")
-    LiveData<List<Router>> getAll();
+public interface ActionDao {
+    @Query("SELECT * FROM `action`")
+    LiveData<List<Action>> getAll();
 
-    @Query("SELECT mac FROM router")
-    List<String> getList();
+
 
     @Insert
-    void insert(Router router);
+    void insert(Action action);
 
     @Update
-    void update(Router router);
+    void update(Action action);
 
     @Delete
-    void delete(Router router);
+    void delete(Action action);
 
 }
