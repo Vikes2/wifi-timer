@@ -34,16 +34,12 @@ public class StatsAdapter extends RecyclerView.Adapter<StatsAdapter.StatsViewHol
         Router currentItem = mRouterList.get(position);
         if(mData == null){
             holder.mTimeView.setText("unknown");
-
         }else{
             if(mData.containsKey(currentItem.mac)){
                 holder.mTimeView.setText(mData.get(currentItem.mac));
-
             }else{
                 holder.mTimeView.setText("unknown2");
-
             }
-
         }
         holder.mNameView.setText(currentItem.name);
     }
@@ -62,8 +58,6 @@ public class StatsAdapter extends RecyclerView.Adapter<StatsAdapter.StatsViewHol
             super(itemView);
             mNameView = itemView.findViewById(R.id.nameTV);
             mTimeView = itemView.findViewById(R.id.timeTV);
-
-
         }
     }
 }

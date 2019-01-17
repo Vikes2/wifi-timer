@@ -52,24 +52,29 @@ public class NetworkSchedulerService extends JobService implements
     }
     @Override
     public void onDestroy(){
-        if(routerList.size()>0){
+
+        if(routerList.size()>0 ) {
             long milis = Calendar.getInstance().getTimeInMillis();
             AsyncTask.execute(new Runnable() {
-                Action action;
+                Boolean isConnected;
+                long milis;
                 @Override
                 public void run() {
-                    db.actionDao().insert(action);
+                    Action[] lastConnected = db.actionDao().getLastConnected();
+
+                    if(lastConnected.length > 0){
+                        db.actionDao().insert(new Action(lastConnected[0].network_id, isConnected, milis));
+                    }
                 }
-                public Runnable init(Action _action){
-                    this.action = _action;
+                public Runnable init(Boolean _isConnected, long _milis){
+                    this.isConnected = _isConnected;
+                    this.milis = _milis;
                     return(this);
                 }
-            }.init( new Action(routerList.get(0), false, milis)  ));
-
+            }.init( false, milis));
         }
 
         super.onDestroy();
-
     }
 
 
@@ -125,13 +130,22 @@ public class NetworkSchedulerService extends JobService implements
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
 
                 if(routerList.contains(_network_id)) {
-                    Log.d("pawelski", "Dodaje connect " + activeNetwork.getNetworkId());
 
                     AsyncTask.execute(new Runnable() {
                         Action action;
                         @Override
                         public void run() {
-                            db.actionDao().insert(action);
+                            Action lastAction = db.actionDao().getLastAction(action.network_id);
+
+                            if(lastAction == null) {
+                                db.actionDao().insert(action);
+                            }else if(lastAction.connected) {
+                                return;
+                            }
+                            else if(!lastAction.connected) {
+                                //db.actionDao().insert(new Action(action.network_id, false, action.time));
+                                db.actionDao().insert(action);
+                            }
                         }
                         public Runnable init(Action _action){
                             this.action = _action;
@@ -147,21 +161,26 @@ public class NetworkSchedulerService extends JobService implements
                 return;
             }else{
                 lastDc = milis;
-                Log.d("pawelski", "Dodaje dc ");
-
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                if(routerList.size()>0) {
+
+                if(routerList.size()>0 ) {
                     AsyncTask.execute(new Runnable() {
-                        Action action;
+                        Boolean isConnected;
+                        long milis;
                         @Override
                         public void run() {
-                            db.actionDao().insert(action);
+                            Action[] lastConnected = db.actionDao().getLastConnected();
+
+                            if(lastConnected.length > 0){
+                                db.actionDao().insert(new Action(lastConnected[0].network_id, isConnected, milis));
+                            }
                         }
-                        public Runnable init(Action _action){
-                            this.action = _action;
+                        public Runnable init(Boolean _isConnected, long _milis){
+                            this.isConnected = _isConnected;
+                            this.milis = _milis;
                             return(this);
                         }
-                    }.init( new Action(routerList.get(0), isConnected, milis)  ));
+                    }.init( isConnected, milis));
                 }
             }
         }

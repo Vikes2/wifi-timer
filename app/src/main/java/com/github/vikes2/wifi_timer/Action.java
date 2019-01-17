@@ -15,9 +15,6 @@ public class Action {
     @PrimaryKey(autoGenerate = true)
     public int id;
 
-//    @ColumnInfo(name="network_id")
-//    public int network_id;
-
     @ColumnInfo(name="network_id")
     public String network_id;
 

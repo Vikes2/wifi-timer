@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
                     actionList.clear();
                 }
                 actionList.addAll(actions);
-                Log.d("pawelski","dbs: "+actions.size() +"---als: "+actionList.size() );
                 processData();
             }
         });
@@ -93,14 +92,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void processData() {
-        String msg = "";
-        msg+= "-pd-rls("+routerList.size()+")--als("+actionList.size()+")";
-//        Log.d("pawelski", msg);
         if(routerList != null && actionList != null && routerList.size() > 0 && actionList.size() > 0) {
             mTimeData = processTimeData(routerList, actionList);
             mAdapter.mData = mTimeData;
 
-            //Log.d("pawelski", "notify wth_val: "+ mTimeData.values());
             mAdapter.notifyDataSetChanged();
         }else{
 
@@ -114,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
         }
         String last_connection_id = "999";
         long last_connection_time = 0;
-        int i =0;
         Boolean isEmpty = true;
         for(Action action : mActionList){
             if(action.connected == true && isEmpty){
@@ -135,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
                 isEmpty = true;
             }
         }
-        Log.d("pawelski", "state after for wth_val: "+ resultMap.values());
 
         if(mActionList.size()>0){
             Action  lastAction = mActionList.get( mActionList.size() - 1 );
@@ -143,19 +136,12 @@ public class MainActivity extends AppCompatActivity {
                 long now = Calendar.getInstance().getTimeInMillis();
                 long toAddTime = now - lastAction.time;
                 long currentTime = resultMap.get(lastAction.network_id);
-                Log.d("pawelski", currentTime+" was + " +toAddTime);
 
                 resultMap.put(lastAction.network_id, currentTime + toAddTime);
             }
         }
 
-//        if(mActionList.size() >0 && mActionList.get(mActionList.size() -1).connected == true){
-//            long now = Calendar.getInstance().getTimeInMillis();
-//            long tmpTime =now - mActionList.get(mActionList.size() -1).time ;
-//
-//            long tmp = resultMap.get(mActionList.get(mActionList.size() -1).network_id);
-//            resultMap.put(mActionList.get(mActionList.size() -1).network_id, tmp + tmpTime);
-//        }
+
 
 
         HashMap<String, String> resultStringMap = new HashMap<>();
@@ -173,12 +159,11 @@ public class MainActivity extends AppCompatActivity {
         int day = (int) floor(((((mil / 1000) / 60) / 60) / 24) % 30);
 
         String out = "";
-//        Log.d("pawelski", "mil: "+ mil + "min " +min);
 
         if(day> 0){
             out = day + " dni " + hour + " godz. " + min + " min";
         }else if(hour > 0){
-            out = hour + " godz. " + min + " min";
+            out = hour + " godz. " + min + " min "+ sec + " sec";
         }else if(min > 0){
             out = min + " min " + sec + " sec";
         }else{
@@ -195,18 +180,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onDestroy(){
-//        long milis = Calendar.getInstance().getTimeInMillis();
-//        AsyncTask.execute(new Runnable() {
-//            Action action;
-//            @Override
-//            public void run() {
-//                db.actionDao().insert(action);
-//            }
-//            public Runnable init(Action _action){
-//                this.action = _action;
-//                return(this);
-//            }
-//        }.init( new Action(-1+"", false, milis)  ));
+
         super.onDestroy();
     }
 

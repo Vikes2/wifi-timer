@@ -15,7 +15,11 @@ public interface ActionDao {
     @Query("SELECT * FROM `action`")
     LiveData<List<Action>> getAll();
 
+    @Query("SELECT * FROM `action` WHERE network_id = :networkId ORDER BY id DESC LIMIT 1")
+    Action getLastAction(String networkId);
 
+    @Query("SELECT * FROM `action` WHERE connected = 1 ORDER BY id DESC LIMIT 1")
+    Action[] getLastConnected();
 
     @Insert
     void insert(Action action);
