@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
         scheduleJob();
     }
 
+
     private void processData() {
         String msg = "";
         msg+= "-pd-rls("+routerList.size()+")--als("+actionList.size()+")";
@@ -99,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             mTimeData = processTimeData(routerList, actionList);
             mAdapter.mData = mTimeData;
 
-            Log.d("pawelski", "notify wth_val: "+ mTimeData.values());
+            //Log.d("pawelski", "notify wth_val: "+ mTimeData.values());
             mAdapter.notifyDataSetChanged();
         }else{
 
@@ -111,33 +112,30 @@ public class MainActivity extends AppCompatActivity {
         for(Router router : mRouterList){
             resultMap.put(router.mac, 0l);
         }
-        String last_connection_id = "";
-        long last_connection_time = -1;
-
+        String last_connection_id = "999";
+        long last_connection_time = 0;
+        int i =0;
+        Boolean isEmpty = true;
         for(Action action : mActionList){
-            if(action.connected == true && last_connection_id.isEmpty()){
+            if(action.connected == true && isEmpty){
                 last_connection_id = action.network_id;
                 last_connection_time = action.time;
+                isEmpty = false;
             }else if(action.connected == false ){
-
-                if(!last_connection_id.isEmpty() && last_connection_time != -1){
+                if(!isEmpty){
                     long currentTime = resultMap.get(last_connection_id);
                     long toAddTime = action.time - last_connection_time;
 
                     for(Router curRouter : mRouterList){
-                        if(curRouter.mac == last_connection_id){
-                            Log.d("pawelski", currentTime+" was + " +toAddTime);
+                        if(curRouter.mac.equals(last_connection_id)){
                             resultMap.put(last_connection_id, currentTime + toAddTime);
                         }
                     }
                 }
-
-
-
-                last_connection_id = "";
-                last_connection_time = -1;
+                isEmpty = true;
             }
         }
+        Log.d("pawelski", "state after for wth_val: "+ resultMap.values());
 
         if(mActionList.size()>0){
             Action  lastAction = mActionList.get( mActionList.size() - 1 );
@@ -191,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onResume() {
+
         super.onResume();
     }
 
