@@ -1,5 +1,22 @@
 <resources>
-    <string name="app_name">wifi-timer</string>
-    <string name="title_activity_favourite">FavouriteActivity</string>
-    <string name="title_activity_edit">EditActivity</string>
+    <string name="app_name">WiFi-timer</string>
+    <string name="title_activity_favourite">Favourite</string>
+    <string name="input1_dialog">Name</string>
+    <string name="action_settings">Favourite</string>
+    <string name="positive_button">Add</string>
+    <string name="negative_button">Cancel</string>
+    <string name="update_button">Update</string>
+    <string name="confirm_quest">Are you sure?</string>
+    <string name="yes_button">Yes</string>
+    <string name="no_button">No</string>
+    <string name="hour"> h</string>
+    <string name="minutes">min</string>
+    <string name="seconds">sec</string>
+    <string name="id" translatable="false">Id</string>
+
+    <plurals name="day">
+        <item quantity="one">%d day </item>
+        <item quantity="other">%d days </item>
+    </plurals>
+
 </resources>

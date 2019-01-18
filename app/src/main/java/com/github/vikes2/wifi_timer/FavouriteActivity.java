@@ -91,8 +91,8 @@ public class FavouriteActivity extends AppCompatActivity implements AddDialogFra
             @Override
             public void onDeleteClick(final int position) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(FavouriteActivity.this);
-                builder.setMessage("Are you sure?");
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                builder.setMessage(R.string.confirm_quest);
+                builder.setPositiveButton(R.string.yes_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         AsyncTask.execute(new Runnable() {
@@ -113,7 +113,7 @@ public class FavouriteActivity extends AppCompatActivity implements AddDialogFra
                         }.init(routerList.get(position), mAdapter, position));
                     }
                 });
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                builder.setNegativeButton(R.string.no_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();

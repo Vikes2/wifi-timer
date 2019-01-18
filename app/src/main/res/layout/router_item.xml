@@ -27,7 +27,7 @@
             android:layout_below="@id/nameTV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="mac_address"/>
+            android:text="Id"/>
 
         <Button
             android:id="@+id/editBTN"
@@ -35,9 +35,9 @@
             android:layout_height="38dp"
             android:gravity="center"
             android:layout_centerVertical="true"
-            android:layout_toLeftOf="@id/deleteBTN"
+            android:layout_toStartOf="@id/deleteBTN"
             android:background="@drawable/ic_edit"
-            android:layout_marginRight="16dp"/>
+            android:layout_marginEnd="16dp"/>
 
         <Button
             android:id="@+id/deleteBTN"
@@ -45,9 +45,9 @@
             android:layout_height="38dp"
             android:gravity="center"
             android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:background="@drawable/ic_delete"
-            android:layout_marginRight="8dp"/>
+            android:layout_marginEnd="8dp"/>
 
     </RelativeLayout>
 

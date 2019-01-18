@@ -12,12 +12,4 @@ public abstract class RouterDatabase extends RoomDatabase {
     public abstract RouterDao routerDao();
     public abstract ActionDao actionDao();
 
-
-//    static final Migration MIGRATION_1_2 = new Migration(1,2){
-//        @Override
-//        public void migrate(@NonNull SupportSQLiteDatabase database) {
-//            database.execSQL("CREATE TABLE `Action` (`id` INTEGER)");
-//        }
-//
-//    }
 }

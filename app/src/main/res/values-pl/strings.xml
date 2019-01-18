@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Licznik wifi</string>
+    <string name="title_activity_favourite">Ulubione</string>
+    <string name="input1_dialog">Nazwa</string>
+    <string name="action_settings">Ulubione</string>
+    <string name="positive_button">Dodaj</string>
+    <string name="negative_button">Anuluj</string>
+    <string name="update_button">Zmień</string>
+    <string name="confirm_quest">Czy jesteś pewien?</string>
+    <string name="yes_button">Tak</string>
+    <string name="no_button">Nie</string>
+    <string name="hour"> godz.</string>
+    <string name="minutes">min</string>
+    <string name="seconds">sec</string>
+
+    <plurals name="day">
+        <item quantity="one">%d dzień </item>
+        <item quantity="few">%d dni </item>
+        <item quantity="many">%d dni </item>
+    </plurals>
+</resources>

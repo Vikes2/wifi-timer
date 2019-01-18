@@ -41,14 +41,6 @@ public class NetworkSchedulerService extends JobService implements
         db = Room.databaseBuilder(getApplicationContext(),
                 RouterDatabase.class, "database-name").build();
 
-        AsyncTask.execute(new Runnable() {
-            ArrayList<String> routerList2;
-            @Override
-            public void run() {
-                routerList = (ArrayList<String>)db.routerDao().getList();
-            }
-        });
-
     }
     @Override
     public void onDestroy(){
@@ -106,84 +98,92 @@ public class NetworkSchedulerService extends JobService implements
     }
 
     @Override
-    public void onNetworkConnectionChanged(boolean isConnected) {
-        String message = isConnected ? "Good! Connected to Internet" : "Sorry! Not connected to internet";
+    public void onNetworkConnectionChanged(final boolean isConnected) {
+        final String message = isConnected ? "Good! Connected to Internet" : "Sorry! Not connected to internet";
 
 
-        WifiManager wm = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        WifiInfo activeNetwork = wm.getConnectionInfo();
 
-        int state = wm.getWifiState();
-        long milis = Calendar.getInstance().getTimeInMillis();
 
-        if (routerList == null) {
-            return;
-        }
+//        if (routerList == null) {
+//            return;
+//        }
+        AsyncTask.execute(new Runnable() {
+            public void run() {
+                WifiManager wm = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                WifiInfo activeNetwork = wm.getConnectionInfo();
 
-        String _network_id =""+ activeNetwork.getNetworkId();
+                int state = wm.getWifiState();
+                long milis = Calendar.getInstance().getTimeInMillis();
+                routerList = (ArrayList<String>)db.routerDao().getList();
 
-        if(isConnected == true){
-            //if activeNetwork.getNetworkId() in database
+                String _network_id =""+ activeNetwork.getNetworkId();
 
-            if (milis - lastConnect > 3000 && routerList.contains(""+activeNetwork.getNetworkId())){
-                lastConnect = milis;
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                if(isConnected == true){
+                    //if activeNetwork.getNetworkId() in database
 
-                if(routerList.contains(_network_id)) {
+                    if (milis - lastConnect > 3000 && routerList.contains(""+activeNetwork.getNetworkId())){
+                        lastConnect = milis;
+                        //Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
 
-                    AsyncTask.execute(new Runnable() {
-                        Action action;
-                        @Override
-                        public void run() {
-                            Action lastAction = db.actionDao().getLastAction(action.network_id);
+                        if(routerList.contains(_network_id)) {
 
-                            if(lastAction == null) {
-                                db.actionDao().insert(action);
-                            }else if(lastAction.connected) {
-                                return;
-                            }
-                            else if(!lastAction.connected) {
-                                //db.actionDao().insert(new Action(action.network_id, false, action.time));
-                                db.actionDao().insert(action);
-                            }
+                            AsyncTask.execute(new Runnable() {
+                                Action action;
+                                @Override
+                                public void run() {
+                                    Action lastAction = db.actionDao().getLastAction(action.network_id);
+
+                                    if(lastAction == null) {
+                                        Log.d("elo321", "con");
+                                        db.actionDao().insert(action);
+                                    }else if(lastAction.connected) {
+                                        return;
+                                    }
+                                    else if(!lastAction.connected) {
+                                        //db.actionDao().insert(new Action(action.network_id, false, action.time));
+                                        Log.d("elo321", "con");
+                                        db.actionDao().insert(action);
+                                    }
+                                }
+                                public Runnable init(Action _action){
+                                    this.action = _action;
+                                    return(this);
+                                }
+                            }.init( new Action(_network_id, isConnected, milis)  ));
                         }
-                        public Runnable init(Action _action){
-                            this.action = _action;
-                            return(this);
+                    }
+
+                }else{
+                    if (milis - lastDc < 3000){
+                        //stabilizacja
+                        return;
+                    }else{
+                        lastDc = milis;
+                        //Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+
+                        if(routerList.size()>0 ) {
+                            AsyncTask.execute(new Runnable() {
+                                Boolean isConnected;
+                                long milis;
+                                @Override
+                                public void run() {
+                                    Action[] lastConnected = db.actionDao().getLastConnected();
+
+                                    if(lastConnected.length > 0){
+                                        db.actionDao().insert(new Action(lastConnected[0].network_id, isConnected, milis));
+                                    }
+                                }
+                                public Runnable init(Boolean _isConnected, long _milis){
+                                    this.isConnected = _isConnected;
+                                    this.milis = _milis;
+                                    return(this);
+                                }
+                            }.init( isConnected, milis));
                         }
-                    }.init( new Action(_network_id, isConnected, milis)  ));
+                    }
                 }
             }
-
-        }else{
-            if (milis - lastDc < 3000){
-                //stabilizacja
-                return;
-            }else{
-                lastDc = milis;
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-
-                if(routerList.size()>0 ) {
-                    AsyncTask.execute(new Runnable() {
-                        Boolean isConnected;
-                        long milis;
-                        @Override
-                        public void run() {
-                            Action[] lastConnected = db.actionDao().getLastConnected();
-
-                            if(lastConnected.length > 0){
-                                db.actionDao().insert(new Action(lastConnected[0].network_id, isConnected, milis));
-                            }
-                        }
-                        public Runnable init(Boolean _isConnected, long _milis){
-                            this.isConnected = _isConnected;
-                            this.milis = _milis;
-                            return(this);
-                        }
-                    }.init( isConnected, milis));
-                }
-            }
-        }
+        });
 
     }
 

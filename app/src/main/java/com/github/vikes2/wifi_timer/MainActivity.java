@@ -16,7 +16,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -50,7 +54,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
 
         db = Room.databaseBuilder(getApplicationContext(),
                 RouterDatabase.class, "database-name").build();
@@ -90,9 +95,33 @@ public class MainActivity extends AppCompatActivity {
         scheduleJob();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                // User chose the "Settings" item, show the app settings UI...
+                Intent myIntent = new Intent(this, FavouriteActivity.class);
+                startActivity(myIntent);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 
     private void processData() {
-        if(routerList != null && actionList != null && routerList.size() > 0 && actionList.size() > 0) {
+        if(routerList != null && routerList.size() > 0 ) {
             mTimeData = processTimeData(routerList, actionList);
             mAdapter.mData = mTimeData;
 
@@ -104,45 +133,47 @@ public class MainActivity extends AppCompatActivity {
 
     public HashMap<String, String> processTimeData(ArrayList<Router> mRouterList, ArrayList<Action> mActionList){
         HashMap<String, Long> resultMap = new HashMap<>();
+
         for(Router router : mRouterList){
             resultMap.put(router.mac, 0l);
         }
-        String last_connection_id = "999";
-        long last_connection_time = 0;
-        Boolean isEmpty = true;
-        for(Action action : mActionList){
-            if(action.connected == true && isEmpty){
-                last_connection_id = action.network_id;
-                last_connection_time = action.time;
-                isEmpty = false;
-            }else if(action.connected == false ){
-                if(!isEmpty){
-                    long currentTime = resultMap.get(last_connection_id);
-                    long toAddTime = action.time - last_connection_time;
 
-                    for(Router curRouter : mRouterList){
-                        if(curRouter.mac.equals(last_connection_id)){
-                            resultMap.put(last_connection_id, currentTime + toAddTime);
+        if(mActionList != null && mActionList.size() > 0){
+
+            String last_connection_id = "0";
+            long last_connection_time = 0;
+            Boolean isEmpty = true;
+            for(Action action : mActionList){
+                if(action.connected == true && isEmpty){
+                    last_connection_id = action.network_id;
+                    last_connection_time = action.time;
+                    isEmpty = false;
+                }else if(action.connected == false ){
+                    if(!isEmpty){
+                        long currentTime = resultMap.get(last_connection_id);
+                        long toAddTime = action.time - last_connection_time;
+
+                        for(Router curRouter : mRouterList){
+                            if(curRouter.mac.equals(last_connection_id)){
+                                resultMap.put(last_connection_id, currentTime + toAddTime);
+                            }
                         }
                     }
+                    isEmpty = true;
                 }
-                isEmpty = true;
+            }
+
+            if(mActionList.size()>0){
+                Action  lastAction = mActionList.get( mActionList.size() - 1 );
+                if( lastAction.connected == true){
+                    long now = Calendar.getInstance().getTimeInMillis();
+                    long toAddTime = now - lastAction.time;
+                    long currentTime = resultMap.get(lastAction.network_id);
+
+                    resultMap.put(lastAction.network_id, currentTime + toAddTime);
+                }
             }
         }
-
-        if(mActionList.size()>0){
-            Action  lastAction = mActionList.get( mActionList.size() - 1 );
-            if( lastAction.connected == true){
-                long now = Calendar.getInstance().getTimeInMillis();
-                long toAddTime = now - lastAction.time;
-                long currentTime = resultMap.get(lastAction.network_id);
-
-                resultMap.put(lastAction.network_id, currentTime + toAddTime);
-            }
-        }
-
-
-
 
         HashMap<String, String> resultStringMap = new HashMap<>();
         for(String currentKey : resultMap.keySet()){
@@ -160,30 +191,30 @@ public class MainActivity extends AppCompatActivity {
 
         String out = "";
 
+        String dayStr = getResources().getQuantityString(R.plurals.day, day, day);
+
         if(day> 0){
-            out = day + " dni " + hour + " godz. " + min + " min";
+            out = dayStr +" "+ hour +" "+ getString(R.string.hour)+ " " + min + " " + getString(R.string.minutes);
         }else if(hour > 0){
-            out = hour + " godz. " + min + " min "+ sec + " sec";
+            out = hour +" "+ getString(R.string.hour)+ " " + min + " " + getString(R.string.minutes) + " " + sec +" "+ getString(R.string.seconds);
         }else if(min > 0){
-            out = min + " min " + sec + " sec";
+            out = min + " " + getString(R.string.minutes) + " " + sec +" "+ getString(R.string.seconds);
         }else{
-            out = sec + " sec";
+            out = sec +" "+ getString(R.string.seconds);
         }
         return out;
     }
 
     @Override
     public void onResume() {
-
+        processData();
         super.onResume();
     }
 
     @Override
     public void onDestroy(){
-
         super.onDestroy();
     }
-
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void scheduleJob() {
@@ -194,7 +225,6 @@ public class MainActivity extends AppCompatActivity {
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
                 .setPersisted(true)
                 .build();
-
         JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         jobScheduler.schedule(myJob);
     }

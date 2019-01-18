@@ -13,7 +13,7 @@
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:layout_marginBottom="4dp"
-        android:hint="Name" />
+        android:hint="@string/input1_dialog" />
     <EditText
         android:id="@+id/mac"
         android:inputType="text"
@@ -24,5 +24,5 @@
         android:layout_marginRight="4dp"
         android:layout_marginBottom="16dp"
         android:fontFamily="sans-serif"
-        android:hint="Mac"/>
+        android:hint="@string/id"/>
 </LinearLayout>
