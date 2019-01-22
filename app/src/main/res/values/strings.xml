@@ -13,6 +13,7 @@
     <string name="minutes">min</string>
     <string name="seconds">sec</string>
     <string name="id" translatable="false">Id</string>
+    <string name="reset_stats">reset</string>
 
     <plurals name="day">
         <item quantity="one">%d day </item>

@@ -13,6 +13,7 @@
     <string name="hour"> godz.</string>
     <string name="minutes">min</string>
     <string name="seconds">sec</string>
+    <string name="reset_stats">Zresetuj</string>
 
     <plurals name="day">
         <item quantity="one">%d dzień </item>

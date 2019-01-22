@@ -112,6 +112,17 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(myIntent);
                 return true;
 
+            case R.id.reset:
+                AsyncTask.execute(new Runnable() {
+                    Boolean isConnected;
+                    long milis;
+                    @Override
+                    public void run() {
+                        for( int i = 0; i< actionList.size(); i++){
+                            db.actionDao().delete(actionList.get(i));
+                        }
+                    }
+                });
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
