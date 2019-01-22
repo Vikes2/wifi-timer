@@ -1,4 +1,4 @@
-package com.github.vikes2.wifi_timer;
+package com.github.lukaszmalyszko.wifi_timer;
 
 import org.junit.Test;
 

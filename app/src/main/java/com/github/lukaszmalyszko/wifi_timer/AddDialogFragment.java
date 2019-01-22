@@ -1,10 +1,8 @@
-package com.github.vikes2.wifi_timer;
+package com.github.lukaszmalyszko.wifi_timer;
 
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -24,7 +22,7 @@ public class AddDialogFragment extends DialogFragment {
 
     AddDialogListener mListener;
     public EditText name;
-    public EditText mac;
+    public EditText networkId;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -32,8 +30,8 @@ public class AddDialogFragment extends DialogFragment {
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_add, null);
-        mac = view.findViewById(R.id.mac);
-        mac.setText(getMacFromConnection());
+        networkId = view.findViewById(R.id.networkId);
+        networkId.setText(getIdFromConnection());
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
@@ -43,7 +41,7 @@ public class AddDialogFragment extends DialogFragment {
                     public void onClick(DialogInterface dialog, int id) {
                         // Send the positive button event back to the host activity
                         name = getActivity().findViewById(R.id.wifiName);
-                        mac = getActivity().findViewById(R.id.mac);
+                        networkId = getActivity().findViewById(R.id.networkId);
                         mListener.onDialogPositiveClick(AddDialogFragment.this);
                     }
                 })
@@ -55,20 +53,10 @@ public class AddDialogFragment extends DialogFragment {
         return builder.create();
     }
 
-    private String getMacFromConnection(){
-//        ConnectivityManager connManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-//        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-//        if (networkInfo.isConnected()) {
-//            WifiManager wifiManager = (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-//            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-//            wifiInfo.getSSID();
-//            String name = networkInfo.getExtraInfo();
-//            String ssid = wifiInfo.getSSID();
-//            return ssid.replaceAll("^\"|\"$", "");
-//        }
-//        return "";
-
+    private String getIdFromConnection(){
+        // wifi manager do obslugiwania wszystkich usług/serwisów wifi
         WifiManager wifiManager = (WifiManager)getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        // wifiinfo wywolanie getconnection z managera w ktorym przechowywane sa różne rzeczy odnosnie aktualnego połączenia
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         if(wifiInfo.getSupplicantState() == SupplicantState.COMPLETED){
             return "" + wifiInfo.getNetworkId();

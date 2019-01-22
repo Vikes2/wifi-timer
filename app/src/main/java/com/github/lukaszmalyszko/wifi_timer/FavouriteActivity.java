@@ -1,4 +1,4 @@
-package com.github.vikes2.wifi_timer;
+package com.github.lukaszmalyszko.wifi_timer;
 
 import android.arch.lifecycle.Observer;
 import android.arch.persistence.room.Room;
@@ -16,8 +16,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -29,6 +27,7 @@ import java.util.List;
 public class FavouriteActivity extends AppCompatActivity implements AddDialogFragment.AddDialogListener, EditDialogFragment.EditDialogListener {
     private RouterDatabase db;
     private ArrayList<Router> routerList = new ArrayList<>();
+    // obiekt listy recyclerview
     private RecyclerView mRecyclerView;
     private RouterAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -36,7 +35,7 @@ public class FavouriteActivity extends AppCompatActivity implements AddDialogFra
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
         EditText name = dialog.getDialog().findViewById(R.id.wifiName);
-        EditText mac = dialog.getDialog().findViewById(R.id.mac);
+        EditText mac = dialog.getDialog().findViewById(R.id.networkId);
         String nameText = name.getText().toString();
         String macText = mac.getText().toString();
 
@@ -53,6 +52,7 @@ public class FavouriteActivity extends AppCompatActivity implements AddDialogFra
                     db.actionDao().insert(new Action(activeNetwork.getNetworkId() + "", true, Calendar.getInstance().getTimeInMillis()));
                 }
             }
+            //asynchroniczna inicjacja nowego routera(przekazywanie danych do runa)
             public Runnable init(Router _router){
                 this.router = _router;
                 return(this);
@@ -63,17 +63,18 @@ public class FavouriteActivity extends AppCompatActivity implements AddDialogFra
     @Override
     public void onEditDialogPositiveClick(DialogFragment dialog) {
         EditText name = dialog.getDialog().findViewById(R.id.wifiName);
-        EditText mac = dialog.getDialog().findViewById(R.id.mac);
+        EditText mac = dialog.getDialog().findViewById(R.id.networkId);
         String nameText = name.getText().toString();
         String macText = mac.getText().toString();
         int position = ((EditDialogFragment)dialog).position;
         Router router = routerList.get(position);
         router.name = nameText;
-        router.mac = macText;
+        router.networkId = macText;
 
         AsyncTask.execute(new Runnable() {
             Router router;
             @Override
+            // update informacji o dodanym routerze
             public void run() {
                 db.routerDao().update(router);
             }
@@ -96,7 +97,7 @@ public class FavouriteActivity extends AppCompatActivity implements AddDialogFra
                 DialogFragment dialog = new EditDialogFragment();
                 Bundle b = new Bundle();
                 b.putString("name", routerList.get(position).name);
-                b.putString("mac", routerList.get(position).mac);
+                b.putString("networkId", routerList.get(position).networkId);
                 b.putInt("position", position);
                 dialog.setArguments(b);
                 dialog.show(getSupportFragmentManager(), "EditDialogFragment");
@@ -142,13 +143,17 @@ public class FavouriteActivity extends AppCompatActivity implements AddDialogFra
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //konfiguracja toolbara
         setContentView(R.layout.activity_favourite);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //ustawienie bazy
         db = Room.databaseBuilder(getApplicationContext(),
                 RouterDatabase.class, "database-name").build();
 
+        //pobieranie wszystkich elementow
+        //dodany obserwator, do aktualizowania routerow
         db.routerDao().getAll().observe(this, new Observer<List<Router>>() {
             @Override
             public void onChanged(@Nullable List<Router> routers) {
@@ -156,6 +161,7 @@ public class FavouriteActivity extends AppCompatActivity implements AddDialogFra
                     routerList.clear();
                 }
                 routerList.addAll(routers);
+                // zmiana na adapterze
                 mAdapter.notifyDataSetChanged();
             }
         });

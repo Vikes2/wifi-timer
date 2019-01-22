@@ -1,4 +1,4 @@
-package com.github.vikes2.wifi_timer;
+package com.github.lukaszmalyszko.wifi_timer;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
@@ -14,21 +14,21 @@ public class Router {
 
     @NonNull
     @PrimaryKey()
-    public String mac;
+    public String networkId;
 
     public Router(){}
 
-    public Router(String _name, String _mac){
+    public Router(String _name, String _networkId){
         this.name = _name;
-        this.mac = _mac;
+        this.networkId = _networkId;
     }
 
     public String getName(){
         return name;
     }
 
-    public String getMac(){
-        return mac;
+    public String getNetworkId(){
+        return networkId;
     }
 }
 

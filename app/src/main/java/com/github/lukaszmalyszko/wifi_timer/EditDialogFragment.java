@@ -1,4 +1,4 @@
-package com.github.vikes2.wifi_timer;
+package com.github.lukaszmalyszko.wifi_timer;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -19,7 +19,7 @@ public class EditDialogFragment extends DialogFragment {
 
     EditDialogListener mListener;
     public EditText name;
-    public EditText mac;
+    public EditText networkId;
     public int position;
 
     @Override
@@ -29,11 +29,11 @@ public class EditDialogFragment extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_add, null);
         name = view.findViewById(R.id.wifiName);
-        mac = view.findViewById(R.id.mac);
+        networkId = view.findViewById(R.id.networkId);
         position = getArguments().getInt("position");
 
         name.setText(getArguments().getString("name"));
-        mac.setText(getArguments().getString("mac"));
+        networkId.setText(getArguments().getString("networkId"));
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout

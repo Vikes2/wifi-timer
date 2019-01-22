@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.github.vikes2.wifi_timer">
+    package="com.github.lukaszmalyszko.wifi_timer">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -25,7 +25,7 @@
         android:theme="@style/AppTheme">
 
 
-        <activity android:name=".MainActivity">
+        <activity android:name="com.github.lukaszmalyszko.wifi_timer.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -33,17 +33,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".FavouriteActivity"
+            android:name="com.github.lukaszmalyszko.wifi_timer.FavouriteActivity"
             android:label="@string/title_activity_favourite"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName="com.github.lukaszmalyszko.wifi_timer.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.github.vikes2.wifi_timer.MainActivity" />
+                android:value="com.github.lukaszmalyszko.wifi_timer.MainActivity" />
         </activity>
 
         <service
-            android:name=".NetworkSchedulerService"
+            android:name="com.github.lukaszmalyszko.wifi_timer.NetworkSchedulerService"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE"/>
 

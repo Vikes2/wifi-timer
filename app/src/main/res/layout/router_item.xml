@@ -22,7 +22,7 @@
             android:textStyle="bold"/>
 
         <TextView
-            android:id="@+id/macTV"
+            android:id="@+id/networkIdTV"
             android:layout_margin="4dp"
             android:layout_below="@id/nameTV"
             android:layout_width="wrap_content"

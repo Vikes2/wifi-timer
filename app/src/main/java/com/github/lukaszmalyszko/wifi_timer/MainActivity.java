@@ -1,14 +1,12 @@
-package com.github.vikes2.wifi_timer;
+package com.github.lukaszmalyszko.wifi_timer;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.arch.lifecycle.Observer;
-import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -21,20 +19,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import androidx.work.Constraints;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
 import static java.lang.Math.floor;
 
@@ -67,9 +56,11 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
 
+        //uruchamianie sevice do nasluchiwania routerow
         scheduleJob();
     }
 
+    // create toolbar favourite
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = getMenuInflater();
@@ -78,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    //obsluga favourite
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -94,11 +86,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //Starting another activity doesn't have to be one-way. You can also start another activity and receive a result back. To receive a result,
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             if(resultCode == RESULT_OK) {
-                Log.d("pawelski", "zakonczono");
                 processData();
             }
         }
@@ -107,22 +99,25 @@ public class MainActivity extends AppCompatActivity {
 
     private void processData() {
         if(routerList != null && routerList.size() > 0 ) {
+            // przeliczanie czasu konkretnego router (dict ma nazwe oraz time)
             mTimeData = processTimeData(routerList, actionList);
+            // uzupelnienie czasu w adapterze
             mAdapter.mData = mTimeData;
 
+            // wskazanie zmiany (odswiezenie adaptera)
             mAdapter.notifyDataSetChanged();
-        }else{
-
         }
     }
 
+    // params: lista obserwowanych routerow oraz wszystkie actiony
     public HashMap<String, String> processTimeData(ArrayList<Router> mRouterList, ArrayList<Action> mActionList){
         HashMap<String, Long> resultMap = new HashMap<>();
 
         for(Router router : mRouterList){
-            resultMap.put(router.mac, 0l);
+            //uzupelnienie hashmapy zerami
+            resultMap.put(router.networkId, 0l);
         }
-
+        // jesli sa dane akcje
         if(mActionList != null && mActionList.size() > 0){
 
             String last_connection_id = "0";
@@ -130,38 +125,46 @@ public class MainActivity extends AppCompatActivity {
             Boolean isEmpty = true;
             for(Action action : mActionList){
                 if(action.connected == true && isEmpty){
+                    // zapisanie czasu dla danego urzadzenia
                     last_connection_id = action.network_id;
                     last_connection_time = action.time;
+                    // czekanie na sygnal z falsem(disconnected)
                     isEmpty = false;
                 }else if(action.connected == false ){
+                    //sprawdzanie czy byl wczesniej true z connect
                     if(!isEmpty){
+                        //odejmowanie od false true i przypisanie do zmiennych
                         long currentTime = resultMap.get(last_connection_id);
                         long toAddTime = action.time - last_connection_time;
 
                         for(Router curRouter : mRouterList){
-                            if(curRouter.mac.equals(last_connection_id)){
+                            //przejscie po routerach zeby sprawdzic czy mamy go w ulubionych
+                            if(curRouter.networkId.equals(last_connection_id)){
+                                //dodanie koncowego czasu do poprzedniego z listy
                                 resultMap.put(last_connection_id, currentTime + toAddTime);
                             }
                         }
                     }
+                    //oczekiwanie na nastepnego true(connect)
                     isEmpty = true;
                 }
             }
-
             if(mActionList.size()>0){
                 Action  lastAction = mActionList.get( mActionList.size() - 1 );
+                // sprawdzenie czy ostatni action jest true(connect)
                 if( lastAction.connected == true){
                     long now = Calendar.getInstance().getTimeInMillis();
                     long toAddTime = now - lastAction.time;
                     long currentTime = resultMap.get(lastAction.network_id);
-
+                    // jezeli tak to od aktualnego czasu(z calendar) odejmujemy ostatniego true i dodajemy go do całego wyniku
                     resultMap.put(lastAction.network_id, currentTime + toAddTime);
                 }
             }
         }
-
+        //zmiana na stringa w celu latwiejszego wyswietlania(lepszy interface uzytkownika)
         HashMap<String, String> resultStringMap = new HashMap<>();
         for(String currentKey : resultMap.keySet()){
+            // konwertowanie ms na czas używany defaultowo przez uzytkownikow
             resultStringMap.put(currentKey, miliToString(resultMap.get(currentKey)));
         }
 
@@ -190,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
         return out;
     }
 
+    //obserwator do ponownego uruchamiania processData(przy ponownym uruchomieniu lub zmianie w bazie danych)
     @Override
     public void onResume() {
         db.routerDao().getAll().observe(this, new Observer<List<Router>>() {
@@ -230,6 +234,7 @@ public class MainActivity extends AppCompatActivity {
                 .setRequiresCharging(true)
                 .setMinimumLatency(1000)
                 .setOverrideDeadline(2000)
+                //unmetered, bo wifi domyslnie jest niepoliczalna(transmisja)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
                 .setPersisted(true)
                 .build();
@@ -255,9 +260,4 @@ public class MainActivity extends AppCompatActivity {
         startService(startServiceIntent);
     }
 
-
-    public void startCrud(View view) {
-        Intent myIntent = new Intent(this, FavouriteActivity.class);
-        startActivity(myIntent);
-    }
 }

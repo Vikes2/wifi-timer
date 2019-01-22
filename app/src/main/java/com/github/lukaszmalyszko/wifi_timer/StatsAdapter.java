@@ -1,22 +1,20 @@
-package com.github.vikes2.wifi_timer;
+package com.github.lukaszmalyszko.wifi_timer;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 
 public class StatsAdapter extends RecyclerView.Adapter<StatsAdapter.StatsViewHolder> {
 
     private ArrayList<Router> mRouterList;
     private ArrayList<Action> mActionList;
+    //tablica z nazwą routera oraz obliczonym czasem
     public HashMap<String, String> mData;
     public StatsAdapter(ArrayList<Router> routerList, ArrayList<Action> actionList, HashMap<String, String> stringLongHashMap){
         mRouterList = routerList; mActionList = actionList;  mData = stringLongHashMap;}
@@ -35,8 +33,8 @@ public class StatsAdapter extends RecyclerView.Adapter<StatsAdapter.StatsViewHol
         if(mData == null){
             holder.mTimeView.setText("unknown");
         }else{
-            if(mData.containsKey(currentItem.mac)){
-                holder.mTimeView.setText(mData.get(currentItem.mac));
+            if(mData.containsKey(currentItem.networkId)){
+                holder.mTimeView.setText(mData.get(currentItem.networkId));
             }else{
                 holder.mTimeView.setText("unknown2");
             }

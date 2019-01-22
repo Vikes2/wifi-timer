@@ -1,4 +1,4 @@
-package com.github.vikes2.wifi_timer;
+package com.github.lukaszmalyszko.wifi_timer;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
@@ -6,7 +6,7 @@ import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.PrimaryKey;
 
 @Entity(foreignKeys = @ForeignKey(entity = Router.class,
-                                    parentColumns = "mac",
+                                    parentColumns = "networkId",
                                     childColumns = "network_id",
                                     onDelete = ForeignKey.CASCADE
                                     ))
