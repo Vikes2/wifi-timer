@@ -2,7 +2,10 @@ package com.github.vikes2.wifi_timer;
 
 import android.arch.lifecycle.Observer;
 import android.arch.persistence.room.Room;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,10 +16,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class FavouriteActivity extends AppCompatActivity implements AddDialogFragment.AddDialogListener, EditDialogFragment.EditDialogListener {
@@ -38,6 +45,13 @@ public class FavouriteActivity extends AppCompatActivity implements AddDialogFra
             @Override
             public void run() {
                 db.routerDao().insert(router);
+
+                WifiManager wm = (WifiManager)getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                WifiInfo activeNetwork = wm.getConnectionInfo();
+                if (activeNetwork != null && activeNetwork.getNetworkId() != -1) {
+                    db.actionDao().insert(new Action(activeNetwork.getNetworkId() + "" , false, Calendar.getInstance().getTimeInMillis()));
+                    db.actionDao().insert(new Action(activeNetwork.getNetworkId() + "", true, Calendar.getInstance().getTimeInMillis()));
+                }
             }
             public Runnable init(Router _router){
                 this.router = _router;
@@ -163,5 +177,17 @@ public class FavouriteActivity extends AppCompatActivity implements AddDialogFra
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
         addAdapterListeners();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                setResult(RESULT_OK);
+                finish();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

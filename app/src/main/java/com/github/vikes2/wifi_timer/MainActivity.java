@@ -60,31 +60,6 @@ public class MainActivity extends AppCompatActivity {
         db = Room.databaseBuilder(getApplicationContext(),
                 RouterDatabase.class, "database-name").build();
 
-        db.actionDao().getAll().observe(this, new Observer<List<Action>>() {
-            @Override
-            public void onChanged(@Nullable List<Action> actions) {
-                if (!actionList.isEmpty()) {
-                    actionList.clear();
-                }
-                actionList.addAll(actions);
-                processData();
-            }
-        });
-
-
-
-        db.routerDao().getAll().observe(this, new Observer<List<Router>>() {
-            @Override
-            public void onChanged(@Nullable List<Router> routers) {
-                if (!routerList.isEmpty()) {
-                    routerList.clear();
-                }
-                routerList.addAll(routers);
-//                mAdapter.notifyDataSetChanged();
-                processData();
-            }
-        });
-
         mRecyclerView = findViewById(R.id.statsRecycler);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
@@ -109,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_settings:
                 // User chose the "Settings" item, show the app settings UI...
                 Intent myIntent = new Intent(this, FavouriteActivity.class);
-                startActivity(myIntent);
+                startActivityForResult(myIntent, 1);
                 return true;
 
             case R.id.reset:
@@ -127,6 +102,16 @@ public class MainActivity extends AppCompatActivity {
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1) {
+            if(resultCode == RESULT_OK) {
+                Log.d("pawelski", "zakonczono");
+                processData();
+            }
         }
     }
 
@@ -218,7 +203,30 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onResume() {
-        processData();
+        db.routerDao().getAll().observe(this, new Observer<List<Router>>() {
+            @Override
+            public void onChanged(@Nullable List<Router> routers) {
+                if (!routerList.isEmpty()) {
+                    routerList.clear();
+                }
+                routerList.addAll(routers);
+
+                Log.d("wifi-timer", "MainActivity.onCreate(): Pobrano routery w ilości: " + routers.size());
+
+                db.actionDao().getAll().observe(MainActivity.this, new Observer<List<Action>>() {
+                    @Override
+                    public void onChanged(@Nullable List<Action> actions) {
+                        if (!actionList.isEmpty()) {
+                            actionList.clear();
+                        }
+                        actionList.addAll(actions);
+                        processData();
+
+                        Log.d("wifi-timer", "MainActivity.onCreate(): Pobrano akcje w ilości: " + actions.size());
+                    }
+                });
+            }
+        });
         super.onResume();
     }
 
